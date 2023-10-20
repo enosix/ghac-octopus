@@ -1,0 +1,92 @@
+name: 'Octopus Deploy'
+description: |
+  Create a release and deployment for Octopus Deploy.
+  This action is designed to be use with the following channels:
+  - Pull Request
+  - Development
+  - Release
+inputs:
+  package_id:
+    required: true
+  project_id:
+    required: true
+  version:
+    required: true
+  path:
+    required: false
+    default: './out'
+  alt_packages:
+    required: false
+    default: ''
+  jira_id:
+    required: false
+    default: ''
+  variables:
+    required: false
+    default: ''
+  release:
+    required: false
+    default: 'true'
+
+outputs:
+  version:
+    description: "Image Version"
+    value: ${{ steps.image.outputs.version }}
+
+runs:
+  using: "composite"
+  env:
+    OCTOPUS_URL: ${{ env.OCTOPUS_SERVER }}
+    OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_KEY }}
+    OCTOPUS_SPACE: ${{ env.OCTOPUS_SPACE }}      
+  steps:
+  - name: Make Octopus package 🐙
+    uses: OctopusDeploy/create-zip-package-action@v3
+    with:
+      package_id: ${{ inputs.package_id }}
+      version: ${{ inputs.version }}
+      output_folder: './pkg'
+      base_path: ${{ inputs.path }}
+      files: |
+        **/*.*
+
+  - name: Push a package to Octopus Deploy 🐙
+    uses: OctopusDeploy/push-package-action@v3
+    with:
+      packages: ${{ inputs.package_id }}
+      version: ${{ inputs.version }}
+
+  - name: Push build information to Octopus Deploy 🐙
+    uses: OctopusDeploy/push-build-information-action@v3
+    with:
+      packages: '${{ inputs.package_id }}'
+      version: '${{ inputs.version }}'
+
+  - name: Create a release in Octopus Deploy 🐙
+    if: inputs.release == 'true'
+    id: release
+    uses: OctopusDeploy/create-release-action@v3
+    with:
+      project: ${{ inputs.project_id }}
+      channel: ${{ github.event_name == 'pull_request' && 'Pull Request' || github.ref_name == 'main' && 'Development' || 'Release' }}
+      release_number: ${{ inputs.package_id }}-build-${{ github.run_id }}
+      packages: |
+        ${{ inputs.package_id }}:${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+        ${{ inputs.alt_packages }}
+      ignore_existing: true
+      git_ref: 'main'
+      release_notes: |
+        ${{ inputs.jira_id != '' && format('[Jira](https://enosix.atlassian.net/browse/{0}) \n', inputs.jira_id) || '' }}
+        ${{ github.event_name == 'pull_request' && format('[GitHub](https://github.com/{0}/pull/{1} \n', github.repository, github.event.pull_request.number) || '' }}
+        ${{ github.event_name == 'pull_request' && github.event.pull_request.body || '' }}
+        ${{ github.ref_name == 'main' && format('Main branch build {0}', github.sha) || '' }}
+        ${{ github.ref_type == 'tag' && format('Release for {0}', github.ref_name)  || ''}}
+
+  - name: Deploy a release in Octopus Deploy 🐙
+    if: github.ref_name == 'main' && inputs.release == 'true'
+    uses: OctopusDeploy/deploy-release-tenanted-action@v3
+    with:
+      project: ${{ inputs.project_id }}
+      release_number: ${{ steps.release.outputs.release_number }}
+      environment: Development
+      variables: ${{ inputs.variables }}
