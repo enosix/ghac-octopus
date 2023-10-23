@@ -42,6 +42,7 @@ runs:
   steps:
   - name: Make Octopus package 🐙
     uses: OctopusDeploy/create-zip-package-action@v3
+    id: makepkg
     with:
       package_id: ${{ inputs.package_id }}
       version: ${{ inputs.version }}
@@ -53,8 +54,9 @@ runs:
   - name: Push a package to Octopus Deploy 🐙
     uses: OctopusDeploy/push-package-action@v3
     with:
-      packages: ${{ inputs.package_id }}
-      version: ${{ inputs.version }}
+      overwrite_mode: OverwriteExisting
+      packages: |
+        ${{ steps.makepkg.outputs.package_file_path }}
 
   - name: Push build information to Octopus Deploy 🐙
     uses: OctopusDeploy/push-build-information-action@v3
@@ -69,9 +71,9 @@ runs:
     with:
       project: ${{ inputs.project_id }}
       channel: ${{ github.event_name == 'pull_request' && 'Pull Request' || github.ref_name == 'main' && 'Development' || 'Release' }}
-      release_number: ${{ inputs.package_id }}-build-${{ github.run_id }}
+      release_number: ${{ inputs.version }}-build-${{ github.run_id }}
       packages: |
-        ${{ inputs.package_id }}:${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+        ${{ inputs.package_id }}:${{ inputs.version }}
         ${{ inputs.alt_packages }}
       ignore_existing: true
       git_ref: 'main'
