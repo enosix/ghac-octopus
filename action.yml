@@ -6,6 +6,12 @@ description: |
   - Development
   - Release
 inputs:
+  octopus_server:
+    required: true
+  octopus_api_key:
+    required: true
+  octopus_space:
+    required: true
   package_id:
     required: true
   project_id:
@@ -36,9 +42,9 @@ outputs:
 runs:
   using: "composite"
   env:
-    OCTOPUS_URL: ${{ env.OCTOPUS_SERVER }}
-    OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_KEY }}
-    OCTOPUS_SPACE: ${{ env.OCTOPUS_SPACE }}      
+    OCTOPUS_URL: ${{ inputs.octopus_server }}
+    OCTOPUS_API_KEY: ${{ inputs.octopus_api_key }}
+    OCTOPUS_SPACE: ${{ inputs.octopus_space }}      
   steps:
   - name: Make Octopus package 🐙
     uses: OctopusDeploy/create-zip-package-action@v3
