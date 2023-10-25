@@ -41,10 +41,6 @@ outputs:
 
 runs:
   using: "composite"
-  env:
-    OCTOPUS_URL: ${{ inputs.octopus_server }}
-    OCTOPUS_API_KEY: ${{ inputs.octopus_api_key }}
-    OCTOPUS_SPACE: ${{ inputs.octopus_space }}      
   steps:
   - name: Make Octopus package 🐙
     uses: OctopusDeploy/create-zip-package-action@v3
@@ -60,6 +56,10 @@ runs:
   - name: Push a package to Octopus Deploy 🐙
     uses: OctopusDeploy/push-package-action@v3
     with:
+      server: ${{ inputs.octopus_server }}
+      api_key: ${{ inputs.octopus_api_key }}
+      space: ${{ inputs.octopus_space }}
+      
       overwrite_mode: OverwriteExisting
       packages: |
         ${{ steps.makepkg.outputs.package_file_path }}
@@ -67,6 +67,10 @@ runs:
   - name: Push build information to Octopus Deploy 🐙
     uses: OctopusDeploy/push-build-information-action@v3
     with:
+      server: ${{ inputs.octopus_server }}
+      api_key: ${{ inputs.octopus_api_key }}
+      space: ${{ inputs.octopus_space }}
+      
       packages: '${{ inputs.package_id }}'
       version: '${{ inputs.version }}'
 
@@ -75,6 +79,10 @@ runs:
     id: release
     uses: OctopusDeploy/create-release-action@v3
     with:
+      server: ${{ inputs.octopus_server }}
+      api_key: ${{ inputs.octopus_api_key }}
+      space: ${{ inputs.octopus_space }}
+      
       project: ${{ inputs.project_id }}
       channel: ${{ github.event_name == 'pull_request' && 'Pull Request' || github.ref_name == 'main' && 'Development' || 'Release' }}
       release_number: ${{ inputs.version }}-build-${{ github.run_id }}
@@ -94,6 +102,10 @@ runs:
     if: github.ref_name == 'main' && inputs.release == 'true'
     uses: OctopusDeploy/deploy-release-tenanted-action@v3
     with:
+      server: ${{ inputs.octopus_server }}
+      api_key: ${{ inputs.octopus_api_key }}
+      space: ${{ inputs.octopus_space }}
+      
       project: ${{ inputs.project_id }}
       release_number: ${{ steps.release.outputs.release_number }}
       environment: Development
