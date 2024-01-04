@@ -37,14 +37,13 @@ inputs:
 outputs:
   version:
     description: "Image Version"
-    value: ${{ steps.image.outputs.version }}
+    value: ${{ steps.release.outputs.release_number }}
 
 runs:
   using: "composite"
   steps:
   - name: Make Octopus package 🐙
     uses: OctopusDeploy/create-zip-package-action@v3
-    id: makepkg
     with:
       package_id: ${{ inputs.package_id }}
       version: ${{ inputs.version }}
@@ -84,7 +83,7 @@ runs:
       space: ${{ inputs.octopus_space }}
       
       project: ${{ inputs.project_id }}
-      channel: ${{ github.event_name == 'pull_request' && 'Pull Request' || github.ref_name == 'main' && 'Development' || 'Release' }}
+      channel: ${{ github.event_name == 'pull_request' && 'Pull Request' || github.ref_name == 'main' && 'Development' || github.ref_name == 'master' && 'Development' || 'Release' }}
       release_number: ${{ inputs.version }}-build-${{ github.run_id }}
       packages: |
         ${{ inputs.package_id }}:${{ inputs.version }}
@@ -92,14 +91,15 @@ runs:
       ignore_existing: true
       git_ref: 'main'
       release_notes: |
-        ${{ inputs.jira_id != '' && format('[Jira](https://enosix.atlassian.net/browse/{0}) \n', inputs.jira_id) || '' }}
-        ${{ github.event_name == 'pull_request' && format('[GitHub](https://github.com/{0}/pull/{1} \n', github.repository, github.event.pull_request.number) || '' }}
+        ${{ inputs.jira_id != '' && format('[Jira](https://enosix.atlassian.net/browse/{0}) ', inputs.jira_id) || '' }}
+        ${{ github.event_name == 'pull_request' && format('[GitHub](https://github.com/{0}/pull/{1}) ', github.repository, github.event.pull_request.number) || '' }}
         ${{ github.event_name == 'pull_request' && github.event.pull_request.body || '' }}
         ${{ github.ref_name == 'main' && format('Main branch build {0}', github.sha) || '' }}
+        ${{ github.ref_name == 'master' && format('Main branch build {0}', github.sha) || '' }}
         ${{ github.ref_type == 'tag' && format('Release for {0}', github.ref_name)  || ''}}
 
   - name: Deploy a release in Octopus Deploy 🐙
-    if: github.ref_name == 'main' && inputs.release == 'true'
+    if: github.ref_name == 'main' && inputs.release == 'true' || github.ref_name == 'master' && inputs.release == 'true'
     uses: OctopusDeploy/deploy-release-tenanted-action@v3
     with:
       server: ${{ inputs.octopus_server }}
