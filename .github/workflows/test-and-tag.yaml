@@ -39,7 +39,7 @@ jobs:
               await github.rest.git.updateRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref: 'refs/tags/${{ github.event.inputs.tag }}',
+                ref: 'tags/${{ github.event.inputs.tag }}',
                 sha: context.sha,
               })
             } catch (err) {
