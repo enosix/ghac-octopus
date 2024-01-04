@@ -36,14 +36,14 @@ jobs:
         with:
           script: |
             try{
-              github.rest.git.updateRef({
+              await github.rest.git.updateRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 ref: 'refs/tags/${{ github.event.inputs.tag }}',
                 sha: context.sha,
               })
             } catch {
-              github.rest.git.createRef({
+              await github.rest.git.createRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 ref: 'refs/tags/${{ github.event.inputs.tag }}',
