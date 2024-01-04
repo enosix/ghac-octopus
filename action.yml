@@ -33,6 +33,9 @@ inputs:
   release:
     required: false
     default: 'true'
+  tenant:
+    required: false
+    default: 'Current'
 
 outputs:
   version:
@@ -105,7 +108,8 @@ runs:
       server: ${{ inputs.octopus_server }}
       api_key: ${{ inputs.octopus_api_key }}
       space: ${{ inputs.octopus_space }}
-      
+      tenants: |
+        ${{ inputs.tenant }}
       project: ${{ inputs.project_id }}
       release_number: ${{ steps.release.outputs.release_number }}
       environment: Development
