@@ -116,4 +116,5 @@ runs:
       project: ${{ inputs.project_id }}
       release_number: ${{ steps.release.outputs.release_number }}
       environment: ${{ inputs.environment }}
-      variables: ${{ inputs.variables }}
+      variables: |
+        ${{ inputs.variables }}
