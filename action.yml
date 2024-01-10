@@ -58,7 +58,7 @@ runs:
       files: |
         **/*.*
 
-  - name: Push a package to Octopus Deploy 🐙
+  - name: Push package to Octopus 🐙
     uses: OctopusDeploy/push-package-action@v3
     with:
       server: ${{ inputs.octopus_server }}
@@ -69,7 +69,7 @@ runs:
       packages: |
         ${{ steps.makepkg.outputs.package_file_path }}
 
-  - name: Push build information to Octopus Deploy 🐙
+  - name: Push build information to Octopus 🐙
     uses: OctopusDeploy/push-build-information-action@v3
     with:
       server: ${{ inputs.octopus_server }}
@@ -79,7 +79,7 @@ runs:
       packages: '${{ inputs.package_id }}'
       version: '${{ inputs.version }}'
 
-  - name: Create a release in Octopus Deploy 🐙
+  - name: Create release in Octopus Deploy 🐙
     if: inputs.release == 'true'
     id: release
     uses: OctopusDeploy/create-release-action@v3
@@ -104,7 +104,7 @@ runs:
         ${{ github.ref_name == 'master' && format('[Main branch](https://github.com/{0}) build {1}', github.repository, github.sha) || '' }}
         ${{ github.ref_type == 'tag' && format('Release for {0}', github.ref_name)  || ''}}
 
-  - name: Deploy a release in Octopus Deploy 🐙
+  - name: Deploy release in Octopus Deploy 🐙
     if: github.ref_name == 'main' && inputs.release == 'true' || github.ref_name == 'master' && inputs.release == 'true'
     uses: OctopusDeploy/deploy-release-tenanted-action@v3
     with:
@@ -118,3 +118,16 @@ runs:
       environment: ${{ inputs.environment }}
       variables: |
         ${{ inputs.variables }}
+
+    - name: Add Comment
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '🟢 Release Generated: [${{ inputs.version }}]' + 
+              '(https://enosix.octopus.app/app#/${{ inputs.octopus_space }}/projects/${{ inputs.project_id }}/deployments/releases/${{ inputs.version }})'
+          })
