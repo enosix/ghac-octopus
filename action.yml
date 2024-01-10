@@ -117,8 +117,7 @@ runs:
       project: ${{ inputs.project_id }}
       release_number: ${{ steps.release.outputs.release_number }}
       environment: ${{ inputs.environment }}
-      variables: |
-        ${{ inputs.variables }}
+      variables: ${{ inputs.variables }}
 
     - name: Add Comment
       if: github.event_name == 'pull_request'
