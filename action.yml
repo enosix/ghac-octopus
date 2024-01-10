@@ -50,6 +50,7 @@ runs:
   steps:
   - name: Make Octopus package 🐙
     uses: OctopusDeploy/create-zip-package-action@v3
+    id: makepkg
     with:
       package_id: ${{ inputs.package_id }}
       version: ${{ inputs.version }}
