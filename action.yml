@@ -117,17 +117,18 @@ runs:
       project: ${{ inputs.project_id }}
       release_number: ${{ steps.release.outputs.release_number }}
       environment: ${{ inputs.environment }}
-      variables: ${{ inputs.variables }}
+      variables: |
+        ${{ inputs.variables }}
 
-    - name: Add Comment
-      if: github.event_name == 'pull_request'
-      uses: actions/github-script@v6
-      with:
-        script: |
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: '🟢 Release Generated: [${{ inputs.version }}]' + 
-              '(https://enosix.octopus.app/app#/${{ inputs.octopus_space }}/projects/${{ inputs.project_id }}/deployments/releases/${{ inputs.version }})'
-          })
+  - name: Add Comment
+    if: github.event_name == 'pull_request'
+    uses: actions/github-script@v6
+    with:
+      script: |
+        github.rest.issues.createComment({
+          issue_number: context.issue.number,
+          owner: context.repo.owner,
+          repo: context.repo.repo,
+          body: '🟢 Release Generated: [${{ inputs.version }}]' + 
+            '(https://enosix.octopus.app/app#/${{ inputs.octopus_space }}/projects/${{ inputs.project_id }}/deployments/releases/${{ inputs.version }})'
+        })
