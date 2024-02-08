@@ -106,6 +106,7 @@ runs:
         ${{ github.ref_type == 'tag' && format('Release for {0}', github.ref_name)  || ''}}
 
   - name: Deploy release in Octopus Deploy 🐙
+    id: deploy
     if: github.ref_name == 'main' && inputs.release == 'true' || github.ref_name == 'master' && inputs.release == 'true'
     uses: OctopusDeploy/deploy-release-tenanted-action@v3
     with:
@@ -119,6 +120,16 @@ runs:
       environment: ${{ inputs.environment }}
       variables: |
         ${{ inputs.variables }}
+
+  - name: Await task in Octopus Deploy 🐙
+    if: github.ref_name == 'main' && inputs.release == 'true' || github.ref_name == 'master' && inputs.release == 'true'
+    uses: OctopusDeploy/await-task-action@v3
+    env:
+      server: ${{ inputs.octopus_server }}
+      api_key: ${{ inputs.octopus_api_key }}
+      space: ${{ inputs.octopus_space }}
+      timeout_after: 1800
+      server_task_id: ${{ fromJson(steps.deploy.outputs.server_tasks)[0].serverTaskId }}
 
   - name: Add Comment
     if: github.event_name == 'pull_request'
