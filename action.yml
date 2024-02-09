@@ -7,36 +7,49 @@ description: |
   - Release
 inputs:
   octopus_server:
+    description: 'Octopus Server URL'
     required: true
   octopus_api_key:
+    description: 'Octopus API Key'
     required: true
   octopus_space:
+    description: 'Octopus Space'
     required: true
   package_id:
+    description: 'Octopus Package ID'
     required: true
   project_id:
+    description: 'Octopus Project ID'
     required: true
   version:
+    description: 'Package Version'
     required: true
   path:
+    description: 'Path to package contents'
     required: false
     default: './out'
   alt_packages:
+    description: 'Additional packages to include in the release'
     required: false
     default: ''
   jira_id:
+    description: 'Jira story ID (e.g. PROD-1234)'
     required: false
     default: ''
   variables:
+    description: 'Octopus Release Variables'
     required: false
     default: ''
   release:
+    description: 'Create a release in Octopus Deploy'
     required: false
     default: 'true'
   tenant:
+    description: 'Octopus Tenant to deploy to'
     required: false
     default: 'Current'
   environment:
+    description: 'Octopus Environment to deploy to'
     required: false
     default: 'Development'
 
