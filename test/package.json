@@ -1,0 +1,15 @@
+{
+    "GitHub": "n/a",
+    "Branch": "n/a",
+    "Packages": [
+  {
+    "Id": "04tR70000000EEHIA2",
+    "Package2Id": "0Ho46000000XZAMCA4",
+    "Tag": "1178af65eb25bda03edea48688bafa0317835f51",
+    "Branch": "n/a",
+    "AncestorId": null,
+    "Version": "0.0.0.1-fake-test",
+    "AncestorVersion": null
+  }
+]
+}

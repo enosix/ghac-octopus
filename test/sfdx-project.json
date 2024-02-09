@@ -1,0 +1,11 @@
+{
+  "packageDirectories": [
+    {
+      "path": "./unmanaged",
+      "default": true
+    }
+  ],
+  "namespace": "ensxapp",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "51.0"
+}
