@@ -34,6 +34,7 @@ jobs:
           project_id: Surface
           version: ${{ env.TEST_VERSION }}
           environment: "Scratch Org"
+          path: './test'
       - name: Clean up octopus package
         run: |
           RELEASE_ID=$(curl -H "X-Octopus-ApiKey: ${{ secrets.OCTOPUS_API_KEY }}" ${{ vars.OCTOPUS_SERVER }}/api/projects/${{ vars.OCTOPUS_PROJECT_ID }}/releases | jq -r '.Items[] | select(.Version == "${{ env.TEST_VERSION }}") | .Id')
