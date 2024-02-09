@@ -124,7 +124,7 @@ runs:
   - name: Await task in Octopus Deploy 🐙
     if: github.ref_name == 'main' && inputs.release == 'true' || github.ref_name == 'master' && inputs.release == 'true'
     uses: OctopusDeploy/await-task-action@v3
-    env:
+    with:
       server: ${{ inputs.octopus_server }}
       api_key: ${{ inputs.octopus_api_key }}
       space: ${{ inputs.octopus_space }}
