@@ -17,7 +17,7 @@ permissions:
 
 env:
   TEST_VERSION: 0.0.0.1-fake-test
-  PROJECT_ID: Projects-42
+  OCTOPUS_PROJECT_ID: Projects-42
 
 jobs:
   test-and-tag:
